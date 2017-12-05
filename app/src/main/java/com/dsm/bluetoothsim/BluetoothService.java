@@ -19,6 +19,8 @@ package com.dsm.bluetoothsim;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
@@ -31,7 +33,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.dsm.bluetoothsim.ui.PhoneActivity;
-import com.tedcall.sdk.BTDevice;
+import com.tedcall.sdk.BleDevice;
 
 import java.io.IOException;
 
@@ -39,6 +41,8 @@ public class BluetoothService extends Service {
 
     private final String TAG = BluetoothService.class.getSimpleName();
     private final String mDeviceAddress = "36:88:06:01:08:B7"; //TODO scan and update
+    String mLeDeviceAddress = "CD:F0:5E:F8:01:CA";
+
     private Context mContext;
 
     private BluetoothManager mBluetoothManager;
@@ -65,6 +69,13 @@ public class BluetoothService extends Service {
     public static final String ACTION_CALL_DECLINE = Application.class.getPackage().getName() + ".service.ACTION_CALL_DECLINE";
     public static final String ACTION_CALL_ANSWER = Application.class.getPackage().getName() + ".service.ACTION_CALL_ANSWER";
     public static final String ACTION_CALL_HANG_UP = Application.class.getPackage().getName() + ".service.ACTION_CALL_HANG_UP";
+
+    private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
+        @Override
+        public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
+            super.onConnectionStateChange(gatt, status, newState);
+        }
+    };
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
@@ -159,7 +170,7 @@ public class BluetoothService extends Service {
             if (BTDeviceApi.ACTION_EVENT.equals(action)) {
                 int event = intent.getIntExtra("EVENT", -1);
                 switch (event) {
-                    case BTDevice.EVENT_CALL_DISCONNECTED:
+                    case BleDevice.EVENT_CALL_DISCONNECTED:
                         if (mCallType == CallType.INCOMING_CALL) {
                             PhoneActivity.dismissIncomingCallNotification(Application.getAppContext());
 
@@ -249,17 +260,12 @@ public class BluetoothService extends Service {
         ExtendCard extendCard = ExtendCard.getInstance();
         extendCard.initialize(this);
 
-        String gattaddress = "CD:F0:5E:F8:01:CA";
-        /*BluetoothDevice device1 = mBluetoothAdapter.getRemoteDevice(gattaddress);
-        device1.connectGatt(this, true, new BluetoothGattCallback() {
-            @Override
-            public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
-                super.onConnectionStateChange(gatt, status, newState);
-            }
-        });*/
-
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
         device.createBond();
+
+        BluetoothDevice leDevice = mBluetoothAdapter.getRemoteDevice(mLeDeviceAddress);
+        leDevice.createBond();
+        leDevice.connectGatt(this, true, mGattCallback);
 
         try {
             BluetoothSocket socket = device.createRfcommSocketToServiceRecord(ExtendCard.TEDCALL_SPP_UUID);
