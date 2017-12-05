@@ -4,9 +4,9 @@ import android.util.Log;
 
 import com.dsm.bluetoothsim.BTDevEvent;
 
-public class BTDevice {
+public class BleDevice {
 
-    private static final String TAG = BTDevice.class.getSimpleName();
+    private static final String TAG = BleDevice.class.getSimpleName();
 
     public final int BTDEV_NOT_CONNECT = -2;
     public final int BTDEV_NOT_OPEN = -1;
