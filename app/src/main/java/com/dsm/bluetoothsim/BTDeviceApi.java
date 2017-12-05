@@ -12,10 +12,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.dsm.bluetoothsim.ui.PhoneActivity;
-import com.tedcall.sdk.BTDevice;
+import com.tedcall.sdk.BleDevice;
 
 
-public class BTDeviceApi extends BTDevice {
+public class BTDeviceApi extends BleDevice {
 
     private final String TAG = ExtendCard.class.getSimpleName();
 
@@ -52,11 +52,19 @@ public class BTDeviceApi extends BTDevice {
 
     @Override
     public int jni_callback_ble_exist_sms_channel() {
+        super.jni_callback_ble_exist_sms_channel();
         return 1;
     }
 
     @Override
+    public String jni_callback_ble_get_device_password() {
+        super.jni_callback_ble_get_device_password();
+        return "0000";
+    }
+
+    @Override
     public int jni_callback_ble_is_connected() {
+        super.jni_callback_ble_is_connected();
         if ((ExtendCard.getInstance().mConnectionState & 0x2) == ExtendCard.STATE_CONNECTED)
             return 1;
 
@@ -64,9 +72,14 @@ public class BTDeviceApi extends BTDevice {
     }
 
     @Override
+    public int jni_callback_ble_is_mtkdevice() {
+        super.jni_callback_ble_is_mtkdevice();
+        return 1;
+    }
+
+    @Override
     public void jni_callback_ble_write_data(byte channel, byte[] data) {
-        Log.d(TAG, "jni_callback_ble_write_data");
-        printHexString("channel:" + channel + " data:", data);
+        super.jni_callback_ble_write_data(channel, data);
         if (channel == 64) {
             try {
                 if (mSppSocket != null)
@@ -87,6 +100,11 @@ public class BTDeviceApi extends BTDevice {
         intent.putExtra("LEVEL", level);
         intent.putExtra("IS_CHARGING", charging == 1);
         mLocalBroadcastManager.sendBroadcast(intent);
+    }
+
+    @Override
+    public void onDeviceKey(int keyStatus, int keyCode) {
+        super.onDeviceKey(keyStatus, keyCode);
     }
 
     @Override
@@ -210,10 +228,20 @@ public class BTDeviceApi extends BTDevice {
     }
 
     @Override
+    public void onSimPinResult(int result) {
+        super.onSimPinResult(result);
+    }
+
+    @Override
     public void onSimStatus(int status) {
         super.onSimStatus(status);
         /*Intent localIntent = new Intent(ACTION_SIM_STATUS);
         localIntent.putExtra("ACTION_SIM_STATUS", status);*/
+    }
+
+    @Override
+    public void onTCAuthResult(int result) {
+        super.onTCAuthResult(result);
     }
 
     //TODO reset params, move
