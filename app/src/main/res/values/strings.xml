@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">BluetoothSim</string>
+
+    <string name="reply">Reply</string>
+    <string name="incoming_call">Incoming call&#8230;</string>
+    <string name="outgoing_call">Outgoing call&#8230;</string>
+
+    <string name="answer">Answer</string>
+    <string name="hang_up">Hang up</string>
+    <string name="decline">Decline</string>
+
+    <string name="missed_call">Missed call</string>
+    <string name="call_back">Call back</string>
+    <string name="message">Message</string>
+
+    <string name="channel_service">Service</string>
+
+    <string name="channel_sms">Text messages</string>
+    <string name="channel_incoming_calls">Incoming calls</string>
+    <string name="channel_outgoing_calls">Outgoing calls</string>
+    <string name="channel_missed_calls">Missed calls</string>
+
+</resources>
