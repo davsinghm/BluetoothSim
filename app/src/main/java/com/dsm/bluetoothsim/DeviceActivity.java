@@ -12,13 +12,22 @@ public class DeviceActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_device);
 
-        findViewById(R.id.button_ss).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.button_start).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Intent gattServiceIntent = new Intent(DeviceActivity.this, BluetoothService.class);
-                startService(gattServiceIntent);
+                Intent intent = new Intent(DeviceActivity.this, BluetoothService.class);
+                startService(intent);
             }
         });
+
+        findViewById(R.id.button_stop).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(DeviceActivity.this, BluetoothService.class);
+                stopService(intent);
+            }
+        });
+
 
         findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
             @Override

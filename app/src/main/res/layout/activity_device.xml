@@ -9,7 +9,13 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="Start Service"
-        android:id="@+id/button_ss"/>
+        android:id="@+id/button_start"/>
+
+    <Button
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Stop Service"
+        android:id="@+id/button_stop"/>
 
     <Button
         android:layout_width="match_parent"

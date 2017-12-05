@@ -43,7 +43,7 @@ public class BTDevice {
 
     public native int hangup();
 
-    public native void ble_notify_data(byte paramByte, byte[] paramArrayOfByte);
+    public native void ble_notify_data(byte b, byte[] data);
 
     public native void bluetooth_connection_change_notify();
 
@@ -57,11 +57,11 @@ public class BTDevice {
 
     public native int querySignal();
 
-    public native int sendDTMF(char paramChar);
+    public native int sendDTMF(char c);
 
-    public native int sendSMS(String paramString1, String paramString2);
+    public native int sendSMS(String phoneNumber, String content);
 
-    public native int voiceWrite(byte[] paramArrayOfByte);
+    public native int voiceWrite(byte[] data);
 
     public int jni_callback_ble_exist_sms_channel() {
         return 1;
@@ -79,16 +79,16 @@ public class BTDevice {
         return 1;
     }
 
-    public void jni_callback_ble_write_data(byte paramByte, byte[] paramArrayOfByte) {
-        printHexString("base print channel:" + paramByte + " data:", paramArrayOfByte);
+    public void jni_callback_ble_write_data(byte channel, byte[] data) {
+        printHexString("base print channel: " + channel + ", data:", data);
     }
 
     public void onDeviceInfo(int level, int charging) {
-        Log.d(TAG, "onDeviceInfo:" + level + ',' + charging);
+        Log.d(TAG, "onDeviceInfo: " + level + ',' + charging);
     }
 
     public void onDeviceKey(int keyStatus, int keyCode) {
-        Log.d(TAG, "onDeviceKey:" + keyStatus + ',' + keyCode);
+        Log.d(TAG, "onDeviceKey: " + keyStatus + ',' + keyCode);
     }
 
     public void onDeviceStatus(int status) {
