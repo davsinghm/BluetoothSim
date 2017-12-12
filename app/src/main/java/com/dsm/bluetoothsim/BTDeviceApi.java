@@ -14,10 +14,12 @@ import android.util.Log;
 import com.dsm.bluetoothsim.ui.PhoneActivity;
 import com.tedcall.sdk.BleDevice;
 
+import java.io.IOException;
+
 
 public class BTDeviceApi extends BleDevice {
 
-    private final String TAG = ExtendCard.class.getSimpleName();
+    private final String TAG = BTDeviceApi.class.getSimpleName();
 
     public static final String ACTION_CONNECTED = Application.class.getPackage() + ".ACTION_CONNECTED";
     public static final String ACTION_DISCONNECTED = Application.class.getPackage() + ".ACTION_DISCONNECTED";
@@ -38,7 +40,6 @@ public class BTDeviceApi extends BleDevice {
     }
 
     private boolean voiceCodecRunning = false;
-    private BluetoothSocket mSppSocket;
     private static BTDeviceApi mInstance;
     private static LocalBroadcastManager mLocalBroadcastManager;
 
@@ -46,35 +47,35 @@ public class BTDeviceApi extends BleDevice {
         return mInstance;
     }
 
-    public void setSocket(BluetoothSocket socket) {
-        mSppSocket = socket;
+    public static void connect(BluetoothSocket socket) {
+        new SocketThread(socket).start();
+    }
+
+    public static void disconnect() {
+        SocketThread.close();
     }
 
     @Override
     public int jni_callback_ble_exist_sms_channel() {
-        super.jni_callback_ble_exist_sms_channel();
-        return 1;
+        return super.jni_callback_ble_exist_sms_channel();
     }
 
     @Override
     public String jni_callback_ble_get_device_password() {
-        super.jni_callback_ble_get_device_password();
-        return "0000";
+        return super.jni_callback_ble_get_device_password();
     }
 
     @Override
     public int jni_callback_ble_is_connected() {
-        super.jni_callback_ble_is_connected();
-        if ((ExtendCard.getInstance().mConnectionState & 0x2) == ExtendCard.STATE_CONNECTED)
+        if ((SocketThread.getConnectionState() & 0x2) == SocketThread.STATE_CONNECTED)
             return 1;
 
-        return 0;
+        return super.jni_callback_ble_is_connected();
     }
 
     @Override
     public int jni_callback_ble_is_mtkdevice() {
-        super.jni_callback_ble_is_mtkdevice();
-        return 1;
+        return super.jni_callback_ble_is_mtkdevice();
     }
 
     @Override
@@ -82,15 +83,16 @@ public class BTDeviceApi extends BleDevice {
         super.jni_callback_ble_write_data(channel, data);
         if (channel == 64) {
             try {
-                if (mSppSocket != null)
-                    mSppSocket.getOutputStream().write(data);
-            } catch (Exception e) {
+                BluetoothSocket bluetoothSocket = SocketThread.getBluetoothSocket();
+                if (bluetoothSocket != null)
+                    bluetoothSocket.getOutputStream().write(data);
+            } catch (IOException e) {
                 e.printStackTrace();
             }
-            return;
-        } else
+        } else {
             Log.e(TAG, "jni_callback_ble_write_data: need to write gatt characteristics");
-        //TODO enable this when using writeCharacteristic(mGattService.getCharacteristic(toCharacteristic(channel)), data);
+            //TODO enable this when using writeCharacteristic(mGattService.getCharacteristic(toCharacteristic(channel)), data);
+        }
     }
 
     @Override
@@ -130,19 +132,6 @@ public class BTDeviceApi extends BleDevice {
 
         switch (event) {
             case EVENT_CALL_CONNECTED /*3*/:
-                break;
-            case EVENT_CALL_DISCONNECTED /*4*/:
-                break;
-            case EVENT_VOICE_OPEN /*5*/:
-                //added
-                AudioManager audioManager = (AudioManager) Application.getAppContext().getSystemService(Context.AUDIO_SERVICE);
-                // audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL);
-                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
-                //int originalVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
-
-                audioTrack.play();
-
-                //moved from CALL_CONNECTED
                 voiceCodecRunning = true; //TODO move to OPEN?
                 new Thread(new Runnable() {
                     public void run() {
@@ -166,6 +155,17 @@ public class BTDeviceApi extends BleDevice {
                 }).start();
 
                 break;
+            case EVENT_CALL_DISCONNECTED /*4*/:
+                break;
+            case EVENT_VOICE_OPEN /*5*/:
+                //added
+                AudioManager audioManager = (AudioManager) Application.getAppContext().getSystemService(Context.AUDIO_SERVICE);
+                // audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL);
+                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+                //int originalVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
+
+                audioTrack.play();
+                break;
             case EVENT_VOICE_CLOSE /*6*/:
                 voiceCodecRunning = false;
                 break;
@@ -177,7 +177,7 @@ public class BTDeviceApi extends BleDevice {
     public void onIncomingCall(String phoneNumber) {
         super.onIncomingCall(phoneNumber);
         /* if (blocked_number) {
-            mExtendCardApi.hangup();
+            hangup();
             return;
         }*/
 

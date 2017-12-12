@@ -36,6 +36,7 @@ import com.dsm.bluetoothsim.ui.PhoneActivity;
 import com.tedcall.sdk.BleDevice;
 
 import java.io.IOException;
+import java.net.Socket;
 
 public class BluetoothService extends Service {
 
@@ -92,7 +93,7 @@ public class BluetoothService extends Service {
                 } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
                     Log.w(TAG, "DISCONNECTED");
                     notificationHelper.updateService(R.drawable.ic_bluetooth_disabled_white, "Device disconnected", null, null);
-                    connectDevice();
+                    //connectDevice();
                 }
             }
 
@@ -257,8 +258,6 @@ public class BluetoothService extends Service {
     }
 
     private void connectDevice() {
-        ExtendCard extendCard = ExtendCard.getInstance();
-        extendCard.initialize(this);
 
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
         device.createBond();
@@ -270,10 +269,13 @@ public class BluetoothService extends Service {
         try {
             BluetoothSocket socket = device.createRfcommSocketToServiceRecord(ExtendCard.TEDCALL_SPP_UUID);
             // mBluetoothAdapter.cancelDiscovery();
-            extendCard.connect(socket);
+
+            BTDeviceApi.connect(socket);
+            BTDeviceApi.getInstance().open();
+
 
             notificationHelper.updateService(R.drawable.ic_bluetooth_connected_white, "Connected", null, null);
-            extendCard.getExtendCardApi().queryDeviceInfo();
+            BTDeviceApi.getInstance().queryDeviceInfo();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -298,7 +300,7 @@ public class BluetoothService extends Service {
         super.onDestroy();
         Log.w("BLEService", "onDestroy()");
         //close();
-        ExtendCard.getInstance().disconnect();
+        BTDeviceApi.disconnect();
 
         unregisterReceiver(mReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalBroadcastReceiver);

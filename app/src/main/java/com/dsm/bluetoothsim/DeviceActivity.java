@@ -35,8 +35,8 @@ public class DeviceActivity extends Activity {
                 //ExtendCard.getInstance().getExtendCardApi().queryDeviceInfo();
                 //ExtendCard.getInstance().getExtendCardApi().dial("00353834191001");
                 //ExtendCard.getInstance().getExtendCardApi().answer();
-                ExtendCard.getInstance().getExtendCardApi().queryDeviceInfo();
-                ExtendCard.getInstance().getExtendCardApi().querySignal();
+                BTDeviceApi.getInstance().queryDeviceInfo();
+                BTDeviceApi.getInstance().querySignal();
                 //ExtendCard.getInstance().getExtendCardApi().sendSMS("+353834191001", "text sms");
             }
         });
@@ -44,7 +44,7 @@ public class DeviceActivity extends Activity {
         findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ExtendCard.getInstance().getExtendCardApi().dial("00353834191001");
+                BTDeviceApi.getInstance().dial("+917696668805");
 
                 /*ExtendCard extendCard = ExtendCard.getInstance();
                 extendCard.disconnect();
