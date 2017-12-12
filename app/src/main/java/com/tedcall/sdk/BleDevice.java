@@ -64,22 +64,27 @@ public class BleDevice {
     public native int voiceWrite(byte[] data);
 
     public int jni_callback_ble_exist_sms_channel() {
+        Log.d(TAG, "jni_callback_ble_exist_sms_channel() is called");
         return 1;
     }
 
     public String jni_callback_ble_get_device_password() {
+        Log.d(TAG, "jni_callback_ble_get_device_password() is called");
         return "0000";
     }
 
     public int jni_callback_ble_is_connected() {
+        Log.d(TAG, "jni_callback_ble_is_connected() is called");
         return 0;
     }
 
     public int jni_callback_ble_is_mtkdevice() {
+        Log.d(TAG, "jni_callback_ble_is_mtkdevice() is called");
         return 1;
     }
 
     public void jni_callback_ble_write_data(byte channel, byte[] data) {
+        Log.d(TAG, "jni_callback_ble_write_data() is called");
         printHexString("base print channel: " + channel + ", data:", data);
     }
 
