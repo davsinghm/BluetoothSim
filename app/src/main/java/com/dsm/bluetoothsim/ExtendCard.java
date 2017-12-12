@@ -82,7 +82,7 @@ public class ExtendCard {
                     while ((n = mSppSocket.getInputStream().read(buffer)) > 0) {
                         byte[] temp = new byte[n];
                         System.arraycopy(buffer, 0, temp, 0, n);
-                        BTDeviceApi.printHexString("spp recv:", temp);
+                        BTDevice.printHexString("spp recv:", temp);
                         mBTDeviceApi.ble_notify_data((byte) 64, temp);
                         *//*try {
                             Thread.sleep(10L);

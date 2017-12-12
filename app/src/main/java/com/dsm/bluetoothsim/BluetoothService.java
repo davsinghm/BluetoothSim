@@ -36,7 +36,6 @@ import com.dsm.bluetoothsim.ui.PhoneActivity;
 import com.tedcall.sdk.BleDevice;
 
 import java.io.IOException;
-import java.net.Socket;
 
 public class BluetoothService extends Service {
 
@@ -111,27 +110,27 @@ public class BluetoothService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             /*
-            filter.addAction(BTDeviceApi.ACTION_CONNECTED);
-            filter.addAction(BTDeviceApi.ACTION_DISCONNECTED);
-            filter.addAction(BTDeviceApi.ACTION_NET_OPERATOR);
-            filter.addAction(BTDeviceApi.ACTION_SEND_SMS);
-            filter.addAction(BTDeviceApi.ACTION_SIGNAL_LENGTH);
-            filter.addAction(BTDeviceApi.ACTION_SIM_STATUS);
-            filter.addAction(BTDeviceApi.ACTION_VOICE_BACK);*/
+            filter.addAction(BTDevice.ACTION_CONNECTED);
+            filter.addAction(BTDevice.ACTION_DISCONNECTED);
+            filter.addAction(BTDevice.ACTION_NET_OPERATOR);
+            filter.addAction(BTDevice.ACTION_SEND_SMS);
+            filter.addAction(BTDevice.ACTION_SIGNAL_LENGTH);
+            filter.addAction(BTDevice.ACTION_SIM_STATUS);
+            filter.addAction(BTDevice.ACTION_VOICE_BACK);*/
             String action = intent.getAction();
-            if (BTDeviceApi.ACTION_DEVICE_INFO.equals(action)) {
+            if (BTDevice.ACTION_DEVICE_INFO.equals(action)) {
                 int level = intent.getIntExtra("LEVEL", -1);
                 boolean isCharging = intent.getBooleanExtra("IS_CHARGING", false);
                 notificationHelper.updateService(R.drawable.ic_bluetooth_connected_white, "Connected", null, level >= 0 ? "" + level + "%" + (isCharging ? " (Charging)" : "") : null);
             }
 
-            if (BTDeviceApi.ACTION_NEW_SMS.equals(action)) {
+            if (BTDevice.ACTION_NEW_SMS.equals(action)) {
                 String phoneNumber = intent.getStringExtra("PHONE_NUMBER");
                 String content = intent.getStringExtra("CONTENT");
                 PhoneActivity.notifySMS(Application.getAppContext(), phoneNumber, content);
             }
 
-            if (BTDeviceApi.ACTION_INCOMING_CALL.equals(action)) {
+            if (BTDevice.ACTION_INCOMING_CALL.equals(action)) {
                 String phoneNumber = intent.getStringExtra("PHONE_NUMBER");
                 if (mPhoneNumber != null && !phoneNumber.equals(mPhoneNumber) || mPhoneNumber == null) {
                     mCallType = CallType.INCOMING_CALL;
@@ -142,7 +141,7 @@ public class BluetoothService extends Service {
                 }
             }
 
-            if (BTDeviceApi.ACTION_OUTGOING_CALL.equals(action)) {
+            if (BTDevice.ACTION_OUTGOING_CALL.equals(action)) {
                 String phoneNumber = intent.getStringExtra("PHONE_NUMBER");
                 if (mPhoneNumber != null && !phoneNumber.equals(mPhoneNumber) || mPhoneNumber == null) {
                     mCallType = CallType.OUTGOING_CALL;
@@ -154,21 +153,21 @@ public class BluetoothService extends Service {
             }
 
             if (ACTION_CALL_ANSWER.equals(action)) {
-                BTDeviceApi.getInstance().answer();
+                BTDevice.getInstance().answer();
                 PhoneActivity.ongoingIncomingCallNotification(Application.getAppContext(), mPhoneNumber);
                 mAnswered = true;
             }
 
             if (ACTION_CALL_DECLINE.equals(action)) {
-                BTDeviceApi.getInstance().hangup();
+                BTDevice.getInstance().hangup();
                 mDeclined = true;
             }
 
             if (ACTION_CALL_HANG_UP.equals(action)) {
-                BTDeviceApi.getInstance().hangup();
+                BTDevice.getInstance().hangup();
             }
 
-            if (BTDeviceApi.ACTION_EVENT.equals(action)) {
+            if (BTDevice.ACTION_EVENT.equals(action)) {
                 int event = intent.getIntExtra("EVENT", -1);
                 switch (event) {
                     case BleDevice.EVENT_CALL_DISCONNECTED:
@@ -219,18 +218,18 @@ public class BluetoothService extends Service {
 
     public IntentFilter makeExtendCardIntentFilter() {
         IntentFilter filter = new IntentFilter();
-        filter.addAction(BTDeviceApi.ACTION_CONNECTED);
-        filter.addAction(BTDeviceApi.ACTION_DISCONNECTED);
-        filter.addAction(BTDeviceApi.ACTION_DEVICE_INFO);
-        filter.addAction(BTDeviceApi.ACTION_EVENT);
-        filter.addAction(BTDeviceApi.ACTION_INCOMING_CALL);
-        filter.addAction(BTDeviceApi.ACTION_OUTGOING_CALL);
-        filter.addAction(BTDeviceApi.ACTION_NET_OPERATOR);
-        filter.addAction(BTDeviceApi.ACTION_NEW_SMS);
-        filter.addAction(BTDeviceApi.ACTION_SEND_SMS);
-        filter.addAction(BTDeviceApi.ACTION_SIGNAL_LENGTH);
-        filter.addAction(BTDeviceApi.ACTION_SIM_STATUS);
-        filter.addAction(BTDeviceApi.ACTION_VOICE_BACK);
+        filter.addAction(BTDevice.ACTION_CONNECTED);
+        filter.addAction(BTDevice.ACTION_DISCONNECTED);
+        filter.addAction(BTDevice.ACTION_DEVICE_INFO);
+        filter.addAction(BTDevice.ACTION_EVENT);
+        filter.addAction(BTDevice.ACTION_INCOMING_CALL);
+        filter.addAction(BTDevice.ACTION_OUTGOING_CALL);
+        filter.addAction(BTDevice.ACTION_NET_OPERATOR);
+        filter.addAction(BTDevice.ACTION_NEW_SMS);
+        filter.addAction(BTDevice.ACTION_SEND_SMS);
+        filter.addAction(BTDevice.ACTION_SIGNAL_LENGTH);
+        filter.addAction(BTDevice.ACTION_SIM_STATUS);
+        filter.addAction(BTDevice.ACTION_VOICE_BACK);
 
         filter.addAction(ACTION_CALL_ANSWER);
         filter.addAction(ACTION_CALL_HANG_UP);
@@ -270,12 +269,12 @@ public class BluetoothService extends Service {
             BluetoothSocket socket = device.createRfcommSocketToServiceRecord(ExtendCard.TEDCALL_SPP_UUID);
             // mBluetoothAdapter.cancelDiscovery();
 
-            BTDeviceApi.connect(socket);
-            BTDeviceApi.getInstance().open();
+            BTDevice.connect(socket);
+            BTDevice.getInstance().open();
 
 
             notificationHelper.updateService(R.drawable.ic_bluetooth_connected_white, "Connected", null, null);
-            BTDeviceApi.getInstance().queryDeviceInfo();
+            BTDevice.getInstance().queryDeviceInfo();
 
         } catch (IOException e) {
             e.printStackTrace();
@@ -300,7 +299,7 @@ public class BluetoothService extends Service {
         super.onDestroy();
         Log.w("BLEService", "onDestroy()");
         //close();
-        BTDeviceApi.disconnect();
+        BTDevice.disconnect();
 
         unregisterReceiver(mReceiver);
         LocalBroadcastManager.getInstance(this).unregisterReceiver(mLocalBroadcastReceiver);

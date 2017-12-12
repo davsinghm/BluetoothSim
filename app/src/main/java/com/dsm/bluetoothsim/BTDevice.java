@@ -17,9 +17,9 @@ import com.tedcall.sdk.BleDevice;
 import java.io.IOException;
 
 
-public class BTDeviceApi extends BleDevice {
+public class BTDevice extends BleDevice {
 
-    private final String TAG = BTDeviceApi.class.getSimpleName();
+    private final String TAG = BTDevice.class.getSimpleName();
 
     public static final String ACTION_CONNECTED = Application.class.getPackage() + ".ACTION_CONNECTED";
     public static final String ACTION_DISCONNECTED = Application.class.getPackage() + ".ACTION_DISCONNECTED";
@@ -35,15 +35,15 @@ public class BTDeviceApi extends BleDevice {
     public static final String ACTION_VOICE_BACK = Application.class.getPackage() + ".ACTION_VOICE_BACK";
 
     static {
-        mInstance = new BTDeviceApi();
+        mInstance = new BTDevice();
         mLocalBroadcastManager = LocalBroadcastManager.getInstance(Application.getAppContext());
     }
 
     private boolean voiceCodecRunning = false;
-    private static BTDeviceApi mInstance;
+    private static BTDevice mInstance;
     private static LocalBroadcastManager mLocalBroadcastManager;
 
-    public static BTDeviceApi getInstance() {
+    public static BTDevice getInstance() {
         return mInstance;
     }
 

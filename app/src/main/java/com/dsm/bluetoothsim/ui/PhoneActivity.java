@@ -13,13 +13,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import com.dsm.bluetoothsim.BTDeviceApi;
+import com.dsm.bluetoothsim.BTDevice;
 import com.dsm.bluetoothsim.CallLogUtility;
 import com.dsm.bluetoothsim.R;
 import com.dsm.bluetoothsim.BluetoothService;
 
 public class PhoneActivity extends AppCompatActivity implements View.OnClickListener {
-    BTDeviceApi extendCard;
+    BTDevice extendCard;
     String contactDisplayName;
     String contactNumber;
     Context mContext;
@@ -30,7 +30,7 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
         setContentView(R.layout.phone_call);
         mContext = this;
 
-        extendCard = BTDeviceApi.getInstance();
+        extendCard = BTDevice.getInstance();
         extendCard.answer();
 
         contactNumber = getIntent().getStringExtra("contactNumber");

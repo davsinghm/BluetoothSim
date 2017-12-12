@@ -9,7 +9,7 @@ import java.io.IOException;
 public class SocketThread extends Thread {
 
     private final String TAG = SocketThread.class.getSimpleName();
-    private BTDeviceApi btDeviceApi = BTDeviceApi.getInstance();
+    private BTDevice btDevice = BTDevice.getInstance();
 
     public static final int STATE_CONNECTING = 1;
     public static final int STATE_CONNECTED = 2;
@@ -53,12 +53,12 @@ public class SocketThread extends Thread {
                 bluetoothSocket.connect();
                 connectionState = STATE_CONNECTED;
                 Log.d(TAG, "calling bluetooth_connection_change_notify()");
-                btDeviceApi.bluetooth_connection_change_notify();
+                btDevice.bluetooth_connection_change_notify();
                 while ((n = bluetoothSocket.getInputStream().read(buffer)) > 0) {
                     byte[] bytes = new byte[n];
                     System.arraycopy(buffer, 0, bytes, 0, n);
-                    BTDeviceApi.printHexString("spp recv:", bytes);
-                    BTDeviceApi.getInstance().ble_notify_data((byte) 64, bytes);
+                    BTDevice.printHexString("spp recv:", bytes);
+                    BTDevice.getInstance().ble_notify_data((byte) 64, bytes);
                 }
             }
 
@@ -68,7 +68,7 @@ public class SocketThread extends Thread {
 
         connectionState = STATE_DISCONNECTED;
         Log.d(TAG, "calling bluetooth_connection_change_notify()");
-        btDeviceApi.bluetooth_connection_change_notify();
+        btDevice.bluetooth_connection_change_notify();
     }
 
 }
