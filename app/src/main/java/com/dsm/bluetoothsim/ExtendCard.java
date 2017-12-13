@@ -23,7 +23,6 @@ public class ExtendCard {
 
     public static final String TEDCALL_DEVICE_NAME = "36:88:06";
     public static final String TEDCALL_SERVICE_PREFIX = "04687561-7550-e279-ba20-";
-    public static final UUID TEDCALL_SPP_UUID = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
     private static final UUID channelATCharacteristics = UUID.fromString("0000fff4-0000-1000-8000-00805f9b34fb");
     private static final UUID channelCtrlCharacteristics = UUID.fromString("0000fff2-0000-1000-8000-00805f9b34fb");
     private static final UUID channelSMSCharacteristics = UUID.fromString("0000fff8-0000-1000-8000-00805f9b34fb");

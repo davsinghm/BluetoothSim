@@ -32,26 +32,15 @@ public class DeviceActivity extends Activity {
         findViewById(R.id.button1).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                //ExtendCard.getInstance().getExtendCardApi().queryDeviceInfo();
-                //ExtendCard.getInstance().getExtendCardApi().dial("00353834191001");
-                //ExtendCard.getInstance().getExtendCardApi().answer();
                 BTDevice.getInstance().queryDeviceInfo();
                 BTDevice.getInstance().querySignal();
-                //ExtendCard.getInstance().getExtendCardApi().sendSMS("+353834191001", "text sms");
             }
         });
 
         findViewById(R.id.button2).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                BTDevice.getInstance().dial("+917696668805");
-
-                /*ExtendCard extendCard = ExtendCard.getInstance();
-                extendCard.disconnect();
-                if (extendCard.initializeBluetooth(DeviceActivity.this)) {
-                    extendCard.connect("36:88:06:01:08:B7");
-                } else Log.e(TAG, "error while init extend card");*/
-
+                BTDevice.getInstance().dial("+919999999999");
             }
         });
     }

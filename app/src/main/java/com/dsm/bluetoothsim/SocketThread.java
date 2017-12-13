@@ -1,6 +1,8 @@
 package com.dsm.bluetoothsim;
 
 import android.bluetooth.BluetoothSocket;
+import android.content.Intent;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import java.io.IOException;
@@ -28,7 +30,7 @@ public class SocketThread extends Thread {
     }
 
     public static int getConnectionState() {
-        return connectionState;
+        return connectionState; //TODO return bluetoothSocket.isConnected(); ?
     }
 
     public static void close() {
@@ -48,6 +50,7 @@ public class SocketThread extends Thread {
 
         try (BluetoothSocket bluetoothSocket = SocketThread.bluetoothSocket) {
             //mBluetoothAdapter.cancelDiscovery();
+            btDevice.cancelBtDiscovery();
             connectionState = STATE_CONNECTING;
             if (bluetoothSocket != null) {
                 bluetoothSocket.connect();

@@ -64,8 +64,8 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
         }
 
         Intent intent = new Intent(mContext, PhoneActivity.class);
-        Intent intentAnswer = new Intent(BluetoothService.PENDING_INTENT_ANSWER);
-        Intent intentDecline = new Intent(BluetoothService.PENDING_INTENT_DECLINE);
+        Intent intentAnswer = new Intent(BluetoothService.ACTION_CALL_ANSWER);
+        Intent intentDecline = new Intent(BluetoothService.ACTION_CALL_DECLINE);
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, "Activity".hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent piAnswer = PendingIntent.getBroadcast(mContext, "PiAnswer".hashCode(), intentAnswer, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent piDecline = PendingIntent.getBroadcast(mContext, "PiDecline".hashCode(), intentDecline, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -93,12 +93,12 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
 
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             channel_id = "channel_outgoing_calls";
-            NotificationChannel mChannel = new NotificationChannel(channel_id, mContext.getString(R.string.channel_outgoing_calls), NotificationManager.IMPORTANCE_LOW);
+            NotificationChannel mChannel = new NotificationChannel(channel_id, mContext.getString(R.string.channel_outgoing_calls), NotificationManager.IMPORTANCE_HIGH);
             mChannel.enableVibration(false);
             notificationManager.createNotificationChannel(mChannel);
         }
 
-        Intent intentHangup = new Intent(BluetoothService.PENDING_INTENT_HANG_UP);
+        Intent intentHangup = new Intent(BluetoothService.ACTION_CALL_HANG_UP);
         PendingIntent piHangup = PendingIntent.getBroadcast(mContext, "PiHangup".hashCode(), intentHangup, PendingIntent.FLAG_UPDATE_CURRENT);
 
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, channel_id);
@@ -108,7 +108,7 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
                 .setLargeIcon(CallLogUtility.retrieveContactPhoto(mContext, phoneNumber))
                 .setOngoing(true)
                 .setShowWhen(false)
-                .setPriority(NotificationCompat.PRIORITY_MAX)
+                .setPriority(NotificationCompat.PRIORITY_HIGH)
                 .setColor(Color.parseColor("#2196F3")) //blue 500
                 .addAction(R.drawable.ic_call_end_white, mContext.getString(R.string.hang_up), piHangup);
 
@@ -165,7 +165,7 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
         }
 
         Intent intent = new Intent(mContext, PhoneActivity.class);
-        Intent intentDecline = new Intent(BluetoothService.PENDING_INTENT_HANG_UP);
+        Intent intentDecline = new Intent(BluetoothService.ACTION_CALL_HANG_UP);
         PendingIntent pendingIntent = PendingIntent.getActivity(mContext, "Activity".hashCode(), intent, PendingIntent.FLAG_UPDATE_CURRENT);
         PendingIntent piHangup = PendingIntent.getBroadcast(mContext, "PiHangup".hashCode(), intentDecline, PendingIntent.FLAG_UPDATE_CURRENT);
 
@@ -191,36 +191,5 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
     public static void dismissOutgoingCallNotification(Context context) {
         NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel("outgoing_call".hashCode());
-    }
-
-    public static void notifySMS(Context mContext, String phoneNumber, String content) {
-        if (content == null || content.length() == 0) content = "Empty message";
-        if (phoneNumber == null || phoneNumber.length() == 0) phoneNumber = "Unknown";
-
-        NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        String channel_id = "default";
-
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            channel_id = "channel_sms";
-            NotificationChannel mChannel = new NotificationChannel(channel_id, mContext.getString(R.string.channel_sms), NotificationManager.IMPORTANCE_HIGH);
-            mChannel.enableLights(true);
-            mChannel.setLightColor(Color.parseColor("#3F51B5")); //indigo 500
-            mChannel.enableVibration(true);
-            notificationManager.createNotificationChannel(mChannel);
-        }
-
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, channel_id);
-        builder.setContentTitle(CallLogUtility.getContactDisplayName(mContext, phoneNumber))
-                .setContentText(content)
-                .setSmallIcon(R.drawable.ic_message_white)
-                .setLargeIcon(CallLogUtility.retrieveContactPhoto(mContext, phoneNumber))
-                .setColor(Color.parseColor("#3F51B5")) //indigo 500
-                .setStyle(new NotificationCompat.BigTextStyle().bigText(content))
-                .setGroup("group_sms")
-                .setShowWhen(true)
-                .setOngoing(false)
-                .addAction(R.drawable.ic_reply_white, mContext.getString(R.string.reply), null);
-
-        notificationManager.notify((phoneNumber + content + System.currentTimeMillis()).hashCode(), builder.build());
     }
 }

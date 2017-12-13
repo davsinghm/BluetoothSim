@@ -12,9 +12,12 @@
     <string name="missed_call">Missed call</string>
     <string name="call_back">Call back</string>
     <string name="message">Message</string>
+    <string name="messages">Messages</string>
 
-    <string name="channel_service">Service</string>
+    <string name="quick_reply_label">Type message</string>
+    <string name="turn_off">Turn off</string>
 
+    <string name="channel_service">Device status</string>
     <string name="channel_sms">Text messages</string>
     <string name="channel_incoming_calls">Incoming calls</string>
     <string name="channel_outgoing_calls">Outgoing calls</string>

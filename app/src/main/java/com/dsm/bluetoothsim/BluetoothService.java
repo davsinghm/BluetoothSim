@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothGatt;
 import android.bluetooth.BluetoothGattCallback;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothSocket;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -29,6 +30,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.IBinder;
 import android.provider.CallLog;
+import android.support.v4.app.RemoteInput;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -41,7 +43,7 @@ public class BluetoothService extends Service {
 
     private final String TAG = BluetoothService.class.getSimpleName();
     private final String mDeviceAddress = "36:88:06:01:08:B7"; //TODO scan and update
-    String mLeDeviceAddress = "CD:F0:5E:F8:01:CA";
+    private final String mLeDeviceAddress = "CD:F0:5E:F8:01:CA";
 
     private Context mContext;
 
@@ -61,46 +63,65 @@ public class BluetoothService extends Service {
     int mDuration;
     long mTimeInMillis;
 
-    //used through notification
-    public static final String PENDING_INTENT_HANG_UP = Application.class.getPackage().getName() + ".service.PENDING_INTENT_HANG_UP";
-    public static final String PENDING_INTENT_DECLINE = Application.class.getPackage().getName() + ".service.PENDING_INTENT_DECLINE";
-    public static final String PENDING_INTENT_ANSWER = Application.class.getPackage().getName() + ".service.PENDING_INTENT_ANSWER";
+    private static final String packageName = Application.class.getPackage().getName();
+    public static final String ACTION_STOP_SERVICE = packageName + ".service.STOP_SERVICE";
 
-    public static final String ACTION_CALL_DECLINE = Application.class.getPackage().getName() + ".service.ACTION_CALL_DECLINE";
-    public static final String ACTION_CALL_ANSWER = Application.class.getPackage().getName() + ".service.ACTION_CALL_ANSWER";
-    public static final String ACTION_CALL_HANG_UP = Application.class.getPackage().getName() + ".service.ACTION_CALL_HANG_UP";
+    //broadcasts global
+    public static final String ACTION_SMS_REPLY = packageName + ".service.ACTION_SMS_REPLY";
+    //both
+    public static final String ACTION_CALL_DECLINE = packageName + ".service.ACTION_CALL_DECLINE";
+    public static final String ACTION_CALL_ANSWER = packageName + ".service.ACTION_CALL_ANSWER";
+    public static final String ACTION_CALL_HANG_UP = packageName + ".service.ACTION_CALL_HANG_UP";
+    //local
+    public static final String ACTION_BT_CANCEL_DISCOVERY = packageName + ".service.ACTION_BT_CANCEL_DISCOVERY";
 
     private final BluetoothGattCallback mGattCallback = new BluetoothGattCallback() {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             super.onConnectionStateChange(gatt, status, newState);
+            Log.d(TAG, "GATT New State " + (newState == BluetoothProfile.STATE_CONNECTED ? "STATE_CONNECTED" : "STATE_DISCONNECTED"));
         }
     };
 
     private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            String action = intent.getAction();
+            final String action = intent.getAction();
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (device != null && mDeviceAddress.equals(device.getAddress())) {
                 if (BluetoothDevice.ACTION_ACL_CONNECTED.equals(action)) {
-                    Log.w(TAG, "CONNECTED");
+                    Log.w(TAG, "ACL_CONNECTED");
+                    notificationHelper.notifyConnecting("ACL Connected");
                 } else if (BluetoothDevice.ACTION_BOND_STATE_CHANGED.equals(action)) {
                     Log.w(TAG, "ACTION_BOND_STATE_CHANGED");
                 } else if (BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED.equals(action)) {
-                    Log.w(TAG, "REQUESTED");
+                    Log.w(TAG, "ACL_DISCONNECT_REQUESTED");
                 } else if (BluetoothDevice.ACTION_ACL_DISCONNECTED.equals(action)) {
-                    Log.w(TAG, "DISCONNECTED");
-                    notificationHelper.updateService(R.drawable.ic_bluetooth_disabled_white, "Device disconnected", null, null);
+                    Log.w(TAG, "ACL_DISCONNECTED");
+                    notificationHelper.notifyDisconnected("ACL Disconnected");
                     //connectDevice();
                 }
             }
 
-            if (PENDING_INTENT_DECLINE.equals(action))
+            if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
+                final int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, BluetoothAdapter.ERROR);
+                if (state == BluetoothAdapter.STATE_ON) {
+                    connectDevice();
+                }
+            }
+
+            if (ACTION_SMS_REPLY.equals(action)) {
+                String text = RemoteInput.getResultsFromIntent(intent).getString(NotificationHelper.KEY_SMS_REPLY);
+                String phoneNumber = intent.getStringExtra("PHONE_NUMBER");
+                Log.d(TAG, "Reply " + text + " to " + phoneNumber);
+                //TODO
+            }
+
+            if (ACTION_CALL_DECLINE.equals(action))
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ACTION_CALL_DECLINE));
-            else if (PENDING_INTENT_ANSWER.equals(action))
+            else if (ACTION_CALL_ANSWER.equals(action))
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ACTION_CALL_ANSWER));
-            else if (PENDING_INTENT_HANG_UP.equals(action))
+            else if (ACTION_CALL_HANG_UP.equals(action))
                 LocalBroadcastManager.getInstance(mContext).sendBroadcast(new Intent(ACTION_CALL_HANG_UP));
         }
     };
@@ -110,24 +131,40 @@ public class BluetoothService extends Service {
         @Override
         public void onReceive(Context context, Intent intent) {
             /*
-            filter.addAction(BTDevice.ACTION_CONNECTED);
-            filter.addAction(BTDevice.ACTION_DISCONNECTED);
-            filter.addAction(BTDevice.ACTION_NET_OPERATOR);
             filter.addAction(BTDevice.ACTION_SEND_SMS);
-            filter.addAction(BTDevice.ACTION_SIGNAL_LENGTH);
-            filter.addAction(BTDevice.ACTION_SIM_STATUS);
-            filter.addAction(BTDevice.ACTION_VOICE_BACK);*/
+            filter.addAction(BTDevice.ACTION_SIM_STATUS);*/
             String action = intent.getAction();
+
+            if (BTDevice.ACTION_NET_OPERATOR.equals(action)) {
+                int status = intent.getIntExtra("STATUS", 0);
+                String opName = intent.getStringExtra("OPERATOR_NAME");
+                String opNumber = intent.getStringExtra("OPERATOR_NUMBER");
+                notificationHelper.notifySMS("Net Operator", "Status: " + status + ", " + opName + ", OpNum: " + opNumber);
+            }
+
+            if (BTDevice.ACTION_SIGNAL_LENGTH.equals(action)) {
+                int value = intent.getIntExtra("SIGNAL", 0);
+                notificationHelper.notifySMS("Signal Length", "Signal: " + value);
+            }
+
+            if (BTDevice.ACTION_CONNECTED.equals(action)) {
+                notificationHelper.notifyConnected("From Device");
+            }
+
+            if (BTDevice.ACTION_DISCONNECTED.equals(action)) {
+                notificationHelper.notifyDisconnected("From Device");
+            }
+
             if (BTDevice.ACTION_DEVICE_INFO.equals(action)) {
                 int level = intent.getIntExtra("LEVEL", -1);
                 boolean isCharging = intent.getBooleanExtra("IS_CHARGING", false);
-                notificationHelper.updateService(R.drawable.ic_bluetooth_connected_white, "Connected", null, level >= 0 ? "" + level + "%" + (isCharging ? " (Charging)" : "") : null);
+                //notificationHelper.updateService(R.drawable.ic_bluetooth_connected_white, "Connected", null, level >= 0 ? "" + level + "%" + (isCharging ? " (Charging)" : "") : null);
             }
 
             if (BTDevice.ACTION_NEW_SMS.equals(action)) {
                 String phoneNumber = intent.getStringExtra("PHONE_NUMBER");
                 String content = intent.getStringExtra("CONTENT");
-                PhoneActivity.notifySMS(Application.getAppContext(), phoneNumber, content);
+                notificationHelper.notifySMS(phoneNumber, content);
             }
 
             if (BTDevice.ACTION_INCOMING_CALL.equals(action)) {
@@ -203,102 +240,62 @@ public class BluetoothService extends Service {
         mTimeInMillis = 0;
     }
 
-    public IntentFilter makeGlobalIntentFilter() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
-        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
-        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
-        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
-
-        filter.addAction(PENDING_INTENT_ANSWER);
-        filter.addAction(PENDING_INTENT_HANG_UP);
-        filter.addAction(PENDING_INTENT_DECLINE);
-        return filter;
-    }
-
-    public IntentFilter makeExtendCardIntentFilter() {
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(BTDevice.ACTION_CONNECTED);
-        filter.addAction(BTDevice.ACTION_DISCONNECTED);
-        filter.addAction(BTDevice.ACTION_DEVICE_INFO);
-        filter.addAction(BTDevice.ACTION_EVENT);
-        filter.addAction(BTDevice.ACTION_INCOMING_CALL);
-        filter.addAction(BTDevice.ACTION_OUTGOING_CALL);
-        filter.addAction(BTDevice.ACTION_NET_OPERATOR);
-        filter.addAction(BTDevice.ACTION_NEW_SMS);
-        filter.addAction(BTDevice.ACTION_SEND_SMS);
-        filter.addAction(BTDevice.ACTION_SIGNAL_LENGTH);
-        filter.addAction(BTDevice.ACTION_SIM_STATUS);
-        filter.addAction(BTDevice.ACTION_VOICE_BACK);
-
-        filter.addAction(ACTION_CALL_ANSWER);
-        filter.addAction(ACTION_CALL_HANG_UP);
-        filter.addAction(ACTION_CALL_DECLINE);
-        return filter;
-    }
 
     @Override
     public void onCreate() {
         super.onCreate();
         mContext = this;
-        notificationHelper = new NotificationHelper();
-        showServiceNotification();
+        notificationHelper = new NotificationHelper(getApplicationContext());
+        startForeground(NotificationHelper.SERVICE_NOTIFICATION_ID, notificationHelper.getServiceNotification());
 
         registerReceiver(mReceiver, makeGlobalIntentFilter());
-        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalBroadcastReceiver, makeExtendCardIntentFilter());
+        LocalBroadcastManager.getInstance(this).registerReceiver(mLocalBroadcastReceiver, makeLocalIntentFilter());
 
         if (!initializeBluetooth()) {
-            notificationHelper.updateService(R.drawable.ic_bluetooth_disabled_white, "Unable to initialize BluetoothManager", null, null);
+            notificationHelper.notifyDisconnected("Unable to initialize BluetoothManager");
             return;
         }
 
         connectDevice();
-
     }
 
     private void connectDevice() {
+        notificationHelper.notifyConnecting();
 
         BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(mDeviceAddress);
         device.createBond();
 
         BluetoothDevice leDevice = mBluetoothAdapter.getRemoteDevice(mLeDeviceAddress);
         leDevice.createBond();
-        leDevice.connectGatt(this, true, mGattCallback);
+        //leDevice.connectGatt(this, true, mGattCallback);
 
         try {
-            BluetoothSocket socket = device.createRfcommSocketToServiceRecord(ExtendCard.TEDCALL_SPP_UUID);
-            // mBluetoothAdapter.cancelDiscovery();
+            BluetoothSocket socket = device.createRfcommSocketToServiceRecord(BTDevice.UUID_SPP);
 
             BTDevice.connect(socket);
             BTDevice.getInstance().open();
 
-
-            notificationHelper.updateService(R.drawable.ic_bluetooth_connected_white, "Connected", null, null);
             BTDevice.getInstance().queryDeviceInfo();
 
         } catch (IOException e) {
             e.printStackTrace();
-            notificationHelper.updateService(R.drawable.ic_bluetooth_disabled_white, "Failed to create RFComm Socket", null, null);
+            notificationHelper.notifyDisconnected("Cannot create Serial port");
         }
-    }
-
-    private void showServiceNotification() {
-        startForeground(NotificationHelper.SERVICE_NOTIFICATION_ID, notificationHelper.startService(getApplicationContext()));
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        String address = intent.getStringExtra("ADDRESS");
-        if (address != null) ;
-        //connect(address);
-        return START_REDELIVER_INTENT;
+        if (BluetoothService.ACTION_STOP_SERVICE.equals(intent.getAction())) {
+            stopSelf();
+        }
+
+        return START_STICKY;
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.w("BLEService", "onDestroy()");
-        //close();
+
         BTDevice.disconnect();
 
         unregisterReceiver(mReceiver);
@@ -310,14 +307,7 @@ public class BluetoothService extends Service {
         return null;
     }
 
-    /**
-     * Initializes a reference to the local Bluetooth adapter.
-     *
-     * @return Return true if the initialization is successful.
-     */
     public boolean initializeBluetooth() {
-        // For API level 18 and above, get a reference to BluetoothAdapter through
-        // BluetoothManager.
         if (mBluetoothManager == null) {
             mBluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
             if (mBluetoothManager == null) {
@@ -333,5 +323,41 @@ public class BluetoothService extends Service {
         }
 
         return true;
+    }
+
+    public IntentFilter makeGlobalIntentFilter() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BluetoothDevice.ACTION_ACL_CONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECT_REQUESTED);
+        filter.addAction(BluetoothDevice.ACTION_ACL_DISCONNECTED);
+        filter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
+        filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+
+        filter.addAction(ACTION_SMS_REPLY);
+        filter.addAction(ACTION_CALL_ANSWER);
+        filter.addAction(ACTION_CALL_HANG_UP);
+        filter.addAction(ACTION_CALL_DECLINE);
+        return filter;
+    }
+
+    public IntentFilter makeLocalIntentFilter() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(BTDevice.ACTION_CONNECTED);
+        filter.addAction(BTDevice.ACTION_DISCONNECTED);
+        filter.addAction(BTDevice.ACTION_DEVICE_INFO);
+        filter.addAction(BTDevice.ACTION_EVENT);
+        filter.addAction(BTDevice.ACTION_INCOMING_CALL);
+        filter.addAction(BTDevice.ACTION_OUTGOING_CALL);
+        filter.addAction(BTDevice.ACTION_NET_OPERATOR);
+        filter.addAction(BTDevice.ACTION_NEW_SMS);
+        filter.addAction(BTDevice.ACTION_SEND_SMS);
+        filter.addAction(BTDevice.ACTION_SIGNAL_LENGTH);
+        filter.addAction(BTDevice.ACTION_SIM_STATUS);
+
+        filter.addAction(ACTION_BT_CANCEL_DISCOVERY);
+        filter.addAction(ACTION_CALL_ANSWER);
+        filter.addAction(ACTION_CALL_HANG_UP);
+        filter.addAction(ACTION_CALL_DECLINE);
+        return filter;
     }
 }

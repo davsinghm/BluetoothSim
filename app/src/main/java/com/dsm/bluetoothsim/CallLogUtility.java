@@ -33,11 +33,6 @@ public class CallLogUtility {
         values.put(CallLog.Calls.TYPE, type);
         values.put(CallLog.Calls.NEW, 1);
 
-/*
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N_MR1)
-            values.put(CallLog.Calls.FEATURES, CallLog.Calls.FEATURES_PULLED_EXTERNALLY);
-*/
-
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
             values.put(CallLog.Calls.VIA_NUMBER, c.getText(R.string.app_name).toString());
 

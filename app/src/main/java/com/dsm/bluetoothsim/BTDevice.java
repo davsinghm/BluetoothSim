@@ -11,28 +11,29 @@ import android.media.MediaRecorder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-import com.dsm.bluetoothsim.ui.PhoneActivity;
 import com.tedcall.sdk.BleDevice;
 
 import java.io.IOException;
-
+import java.util.UUID;
 
 public class BTDevice extends BleDevice {
 
     private final String TAG = BTDevice.class.getSimpleName();
 
-    public static final String ACTION_CONNECTED = Application.class.getPackage() + ".ACTION_CONNECTED";
-    public static final String ACTION_DISCONNECTED = Application.class.getPackage() + ".ACTION_DISCONNECTED";
-    public static final String ACTION_DEVICE_INFO = Application.class.getPackage() + ".ACTION_DEVICE_INFO";
-    public static final String ACTION_EVENT = Application.class.getPackage() + ".EVENT";
-    public static final String ACTION_OUTGOING_CALL = Application.class.getPackage() + ".ACTION_OUTGOING_CALL";
-    public static final String ACTION_INCOMING_CALL = Application.class.getPackage() + ".ACTION_INCOMING_CALL";
-    public static final String ACTION_NET_OPERATOR = Application.class.getPackage() + ".ACTION_NET_OPERATOR";
-    public static final String ACTION_NEW_SMS = Application.class.getPackage() + ".ACTION_NEW_SMS";
-    public static final String ACTION_SEND_SMS = Application.class.getPackage() + ".ACTION_SEND_SMS";
-    public static final String ACTION_SIGNAL_LENGTH = Application.class.getPackage() + ".ACTION_SIGNAL_LENGTH";
-    public static final String ACTION_SIM_STATUS = Application.class.getPackage() + ".ACTION_SIM_STATUS";
-    public static final String ACTION_VOICE_BACK = Application.class.getPackage() + ".ACTION_VOICE_BACK";
+    public static final UUID UUID_SPP = UUID.fromString("00001101-0000-1000-8000-00805F9B34FB");
+
+    private static final String packageName = Application.class.getPackage().getName();
+    public static final String ACTION_CONNECTED = packageName + ".ACTION_CONNECTED";
+    public static final String ACTION_DISCONNECTED = packageName + ".ACTION_DISCONNECTED";
+    public static final String ACTION_DEVICE_INFO = packageName + ".ACTION_DEVICE_INFO";
+    public static final String ACTION_EVENT = packageName + ".EVENT";
+    public static final String ACTION_OUTGOING_CALL = packageName + ".ACTION_OUTGOING_CALL";
+    public static final String ACTION_INCOMING_CALL = packageName + ".ACTION_INCOMING_CALL";
+    public static final String ACTION_NET_OPERATOR = packageName + ".ACTION_NET_OPERATOR";
+    public static final String ACTION_NEW_SMS = packageName + ".ACTION_NEW_SMS";
+    public static final String ACTION_SEND_SMS = packageName + ".ACTION_SEND_SMS";
+    public static final String ACTION_SIGNAL_LENGTH = packageName + ".ACTION_SIGNAL_LENGTH";
+    public static final String ACTION_SIM_STATUS = packageName + ".ACTION_SIM_STATUS";
 
     static {
         mInstance = new BTDevice();
@@ -55,6 +56,14 @@ public class BTDevice extends BleDevice {
         SocketThread.close();
     }
 
+    public boolean isConnected() {
+        return (SocketThread.getConnectionState() & 0x2) == SocketThread.STATE_CONNECTED;
+    }
+
+    public void cancelBtDiscovery() {
+        mLocalBroadcastManager.sendBroadcast(new Intent(BluetoothService.ACTION_BT_CANCEL_DISCOVERY));
+    }
+
     @Override
     public int jni_callback_ble_exist_sms_channel() {
         return super.jni_callback_ble_exist_sms_channel();
@@ -67,7 +76,7 @@ public class BTDevice extends BleDevice {
 
     @Override
     public int jni_callback_ble_is_connected() {
-        if ((SocketThread.getConnectionState() & 0x2) == SocketThread.STATE_CONNECTED)
+        if (isConnected())
             return 1;
 
         return super.jni_callback_ble_is_connected();
@@ -112,8 +121,7 @@ public class BTDevice extends BleDevice {
     @Override
     public void onDeviceStatus(int status) {
         super.onDeviceStatus(status);
-        Intent intent = new Intent(status == 1 ? ACTION_CONNECTED : ACTION_DISCONNECTED);
-        mLocalBroadcastManager.sendBroadcast(intent);
+        mLocalBroadcastManager.sendBroadcast(new Intent(status == 1 ? ACTION_CONNECTED : ACTION_DISCONNECTED));
     }
 
     @Override
@@ -161,7 +169,7 @@ public class BTDevice extends BleDevice {
                 //added
                 AudioManager audioManager = (AudioManager) Application.getAppContext().getSystemService(Context.AUDIO_SERVICE);
                 // audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL);
-                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, audioManager.getStreamMaxVolume(AudioManager.STREAM_MUSIC), 0);
+                audioManager.setStreamVolume(AudioManager.STREAM_VOICE_CALL, audioManager.getStreamMaxVolume(AudioManager.STREAM_VOICE_CALL), 0);
                 //int originalVolume = mAudioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 
                 audioTrack.play();
@@ -181,12 +189,6 @@ public class BTDevice extends BleDevice {
             return;
         }*/
 
-        /*Intent intent = new Intent(ACTION_INCOMING_CALL);
-        intent.putExtra("incoming_call", phoneNumber);
-        Intent p = new Intent(mContext, AnswerPhone.class);
-        mContext.startActivity(p);*/
-
-
         Intent intent = new Intent(ACTION_INCOMING_CALL);
         intent.putExtra("PHONE_NUMBER", phoneNumber);
         mLocalBroadcastManager.sendBroadcast(intent);
@@ -195,10 +197,11 @@ public class BTDevice extends BleDevice {
     @Override
     public void onNetOperator(int stat, String opName, String opNumber) {
         super.onNetOperator(stat, opName, opNumber);
-        /*Intent intent = new Intent(ACTION_NET_OPERATOR);
-        intent.putExtra("status", stat);
-        intent.putExtra("code", opNumber);*/
-        PhoneActivity.notifySMS(Application.getAppContext(), "onNetOperator is Called", "Stat: " + stat + ", OpName: " + opName + ", OpNo: " + opNumber);
+        Intent intent = new Intent(ACTION_NET_OPERATOR);
+        intent.putExtra("STATUS", stat);
+        intent.putExtra("OPERATOR_NAME", opName);
+        intent.putExtra("OPERATOR_NUMBER", opNumber);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
@@ -213,30 +216,29 @@ public class BTDevice extends BleDevice {
     @Override
     public void onSendSMSCnf(int result) {
         super.onSendSMSCnf(result);
-        /*Intent intent = new Intent(ACTION_SEND_SMS);
-        intent.putExtra("SMS", result);*/
-        if (result == 0)
-            PhoneActivity.notifySMS(Application.getAppContext(), "SMS Sent Failed", "Result " + result);
+        Intent intent = new Intent(ACTION_SEND_SMS);
+        intent.putExtra("RESULT", result); //0 = fail
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
-    public void onSignalStrength(int signalValue) {
-        super.onSignalStrength(signalValue);
-        /*Intent localIntent = new Intent(ACTION_SIGNAL_LENGTH);
-        localIntent.putExtra("signalValue", signalValue);*/
-        PhoneActivity.notifySMS(Application.getAppContext(), "onSignalStrength is Called", "SignalValue " + signalValue);
+    public void onSignalStrength(int signal) {
+        super.onSignalStrength(signal);
+        Intent intent = new Intent(ACTION_SIGNAL_LENGTH);
+        intent.putExtra("SIGNAL", signal);
+        mLocalBroadcastManager.sendBroadcast(intent);
     }
 
     @Override
     public void onSimPinResult(int result) {
         super.onSimPinResult(result);
+        //TODO
     }
 
     @Override
     public void onSimStatus(int status) {
         super.onSimStatus(status);
-        /*Intent localIntent = new Intent(ACTION_SIM_STATUS);
-        localIntent.putExtra("ACTION_SIM_STATUS", status);*/
+        //TODO
     }
 
     @Override
@@ -253,9 +255,6 @@ public class BTDevice extends BleDevice {
 
         audioTrack.getStreamType();
         audioTrack.write(data, 0, 320);
-
-        /*Intent localIntent = new Intent(ACTION_VOICE_BACK);
-        localIntent.putExtra("voice_data", data);*/
     }
 }
 
