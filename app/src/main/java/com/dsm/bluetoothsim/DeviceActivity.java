@@ -145,8 +145,9 @@ public class DeviceActivity extends Activity {
                     Toast.makeText(DeviceActivity.this, "Invalid number, calling +919999999999", Toast.LENGTH_SHORT).show();
                     ret = BTDevice.getInstance().call("+919999999999");
                 }
-                if (ret)
-                    startActivity(new Intent(DeviceActivity.this, PhoneActivity.class).putExtra("PHONE_NUMBER", ed.getText().toString()));
+                if (!ret)
+                    Toast.makeText(DeviceActivity.this, R.string.device_not_connected, Toast.LENGTH_SHORT).show();
+                startActivity(new Intent(DeviceActivity.this, PhoneActivity.class).putExtra("PHONE_NUMBER", ed.getText().toString()));
             }
         });
 
@@ -160,7 +161,6 @@ public class DeviceActivity extends Activity {
                 startActivityForResult(intent, REQUEST_CODE);
             }
         });
-
     }
 
 

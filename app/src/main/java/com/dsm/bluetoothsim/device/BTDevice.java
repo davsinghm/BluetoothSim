@@ -88,6 +88,10 @@ public class BTDevice extends BLEDevice {
         return phoneState == CALL_STATE_OFFHOOK;
     }
 
+    public boolean isRinging() {
+        return phoneState == CALL_STATE_RINGING;
+    }
+
     public boolean isIdle() {
         return phoneState == CALL_STATE_IDLE;
     }

@@ -31,15 +31,19 @@ import com.dsm.bluetoothsim.util.CallLogUtility;
 
 import net.frakbot.glowpadbackport.GlowPadView;
 
+import jp.wasabeef.blurry.Blurry;
+
 public class PhoneActivity extends AppCompatActivity implements View.OnClickListener, SensorEventListener, GlowPadView.OnTriggerListener, DialPadLayout.OnInputListener {
     private static final String TAG = PhoneActivity.class.getSimpleName();
     private static final int PROXIMITY_VALUE = 4;
-    private static final int GLOW_PAD_ANIMATION_DURATION = 1350;
+    private static final int GLOW_PAD_ANIMATION_DURATION = 1200;
     private BTDevice btDevice;
     private Handler handler;
     private GlowPadView glowPadView;
     private DialPadLayout dialPadLayout;
     private TextView tvStatus;
+    private Bitmap displayPicture;
+    private ImageView displayPicView;
     private AudioManager audioManager;
     private SensorManager sensorManager;
     private PowerManager.WakeLock wakeLock;
@@ -100,6 +104,9 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
         if (isOffHook) {
             hideGlowPad();
             showOnCallLayout();
+
+            if (displayPicture != null)
+                Blurry.with(this).radius(30).async().from(displayPicture).into(displayPicView);
         }
     }
 
@@ -119,6 +126,7 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
 
         dialPadLayout = new DialPadLayout(this, this);
         tvStatus = findViewById(R.id.call_status);
+        displayPicView = findViewById(R.id.image_view);
         glowPadView = findViewById(R.id.glow_pad_view);
         glowPadView.setOnTriggerListener(this);
         findViewById(R.id.fab_end_call).setOnClickListener(this);
@@ -127,8 +135,8 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
         findViewById(R.id.button_mic).setOnClickListener(this);
 
         handler.post(glowPadRunnable);
-        updateViewVisibilities(btDevice.isOffhook());
         setContactInfo();
+        updateViewVisibilities(btDevice.isOffhook());
 
         if (btDevice.isOffhook())
             tvStatus.setText(R.string.calling);
@@ -139,8 +147,10 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
         String phoneNumber = getIntent().getStringExtra("PHONE_NUMBER");
         String displayName = CallLogUtility.getContactDisplayName(this, phoneNumber);
 
-        Bitmap contactPicture = CallLogUtility.getContactDisplayPhoto(this, phoneNumber);
-        ((ImageView) findViewById(R.id.image_view)).setImageBitmap(contactPicture);
+        displayPicture = CallLogUtility.getContactDisplayPhoto(this, phoneNumber);
+
+        if (displayPicture != null && btDevice.isRinging())
+            Blurry.with(this).radius(5).from(displayPicture).into(displayPicView);
 
         if (phoneNumber == null)
             phoneNumber = "Unknown";
@@ -203,7 +213,7 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
             case R.id.fab_end_call:
                 tvStatus.setText(R.string.hanging_up);
                 if (!btDevice.endCall())
-                    Toast.makeText(this, R.string.device_not_connected, Toast.LENGTH_LONG).show();
+                    Toast.makeText(this, R.string.device_not_connected, Toast.LENGTH_SHORT).show();
                 break;
             case R.id.button_pad:
                 dialPadLayout.openPage();
@@ -244,20 +254,15 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
     }
 
     @Override
-    public void onGrabbed(View v, int handle) {
-        handler.removeCallbacks(glowPadRunnable);
-    }
-
-    @Override
     public void onTrigger(View v, int target) {
         if (glowPadView.getResourceIdForTarget(target) == R.drawable.ic_lockscreen_answer) {
             if (!btDevice.answerRingingCall()) {
-                Toast.makeText(this, R.string.device_not_connected, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.device_not_connected, Toast.LENGTH_SHORT).show();
                 glowPadView.reset(false);
             }
         } else {
             if (!btDevice.endCall()) {
-                Toast.makeText(this, R.string.device_not_connected, Toast.LENGTH_LONG).show();
+                Toast.makeText(this, R.string.device_not_connected, Toast.LENGTH_SHORT).show();
                 glowPadView.reset(false);
             }
         }
@@ -265,7 +270,12 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onFinishFinalAnimation() {
+        handler.removeCallbacks(glowPadRunnable);
         handler.postDelayed(glowPadRunnable, GLOW_PAD_ANIMATION_DURATION);
+    }
+
+    @Override
+    public void onGrabbed(View v, int handle) {
     }
 
     @Override
