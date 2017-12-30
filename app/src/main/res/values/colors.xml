@@ -1,6 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimary">#2196F3</color>
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
+
+    <color name="colorPrimaryBg">#4D000000</color>
+    <color name="divider">#1F000000</color>
+    <color name="red500">#F44336</color>
+    <color name="colorDarkBg">#303030</color>
+    <color name="colorDisabled">#80FFFFFF</color>
+
+    <color name="material_500_red">#F44336</color>
+    <color name="material_500_pink">#E91E63</color>
+    <color name="material_500_purple">#9C27B0</color>
+    <color name="material_500_deep_purple">#673AB7</color>
+    <color name="material_500_indigo">#3F51B5</color>
+    <color name="material_500_blue">#2196F3</color>
+    <color name="material_500_light_blue">#03A9F4</color>
+    <color name="material_500_cyan">#00BCD4</color>
+    <color name="material_500_teal">#009688</color>
+    <color name="material_500_green">#4CAF50</color>
+    <color name="material_500_light_green">#8BC34A</color>
+    <color name="material_500_lime">#CDDC39</color>
+    <color name="material_500_yellow">#FFEB3B</color>
+    <color name="material_500_amber">#FFC107</color>
+    <color name="material_500_orange">#FF9800</color>
+    <color name="material_500_deep_orange">#FF5722</color>
+    <color name="material_500_brown">#795548</color>
+    <color name="material_500_grey">#9E9E9E</color>
+    <color name="material_500_blue_grey">#607D8B</color>
+
 </resources>

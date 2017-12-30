@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Call Activity ring targets
+         - Answer (drag right)
+         - Reject (drag left)
+     -->
+    <array name="incoming_call_widget_2way_targets">
+        <item>@drawable/ic_lockscreen_answer</item>
+        <item>@null</item>
+        <item>@drawable/ic_lockscreen_decline</item>
+        <item>@null</item>
+    </array>
+
+    <array name="material_500">
+        <item>@color/material_500_red</item>
+        <item>@color/material_500_pink</item>
+        <item>@color/material_500_purple</item>
+        <item>@color/material_500_deep_purple</item>
+        <item>@color/material_500_indigo</item>
+        <item>@color/material_500_blue</item>
+        <item>@color/material_500_light_blue</item>
+        <item>@color/material_500_cyan</item>
+        <item>@color/material_500_teal</item>
+        <item>@color/material_500_green</item>
+        <item>@color/material_500_light_green</item>
+        <item>@color/material_500_lime</item>
+        <item>@color/material_500_yellow</item>
+        <item>@color/material_500_amber</item>
+        <item>@color/material_500_orange</item>
+        <item>@color/material_500_deep_orange</item>
+        <item>@color/material_500_brown</item>
+        <item>@color/material_500_grey</item>
+        <item>@color/material_500_blue_grey</item>
+    </array>
+</resources>

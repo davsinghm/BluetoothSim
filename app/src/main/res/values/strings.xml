@@ -1,26 +1,45 @@
 <resources>
-    <string name="app_name">BluetoothSim</string>
+    <string name="app_name">Bluetooth Sim</string>
 
     <string name="reply">Reply</string>
-    <string name="incoming_call">Incoming call&#8230;</string>
-    <string name="outgoing_call">Outgoing call&#8230;</string>
+    <string name="incoming_call">Incoming call</string>
+    <string name="ongoing_call">Ongoing call</string>
 
     <string name="answer">Answer</string>
     <string name="hang_up">Hang up</string>
+
     <string name="decline">Decline</string>
 
     <string name="missed_call">Missed call</string>
     <string name="call_back">Call back</string>
     <string name="message">Message</string>
     <string name="messages">Messages</string>
+    <string name="mark_read">Mark as read</string>
 
     <string name="quick_reply_label">Type message</string>
     <string name="turn_off">Turn off</string>
+    <string name="connect">Connect</string>
+    <string name="disconnect">Disconnect</string>
+    <string name="call_ended">Call ended</string>
+    <string name="refresh">Refresh</string>
+    <string name="phone">Phone</string>
+
+    <string name="mute">Mute</string>
+    <string name="speaker">Speaker</string>
+    <string name="keypad">Keypad</string>
 
     <string name="channel_service">Device status</string>
     <string name="channel_sms">Text messages</string>
     <string name="channel_incoming_calls">Incoming calls</string>
-    <string name="channel_outgoing_calls">Outgoing calls</string>
+    <string name="channel_ongoing_calls">Ongoing calls</string>
     <string name="channel_missed_calls">Missed calls</string>
-
+    <string name="device_not_connected">Device not connected!</string>
+    <string name="desc_speaker_button">Speaker button</string>
+    <string name="desc_keypad_button">Keypad button</string>
+    <string name="desc_mute_button">Microphone button</string>
+    <string name="desc_add_call_button">Add call button</string>
+    <string name="add_call">Add call</string>
+    <string name="calling">Calling&#8230;</string>
+    <string name="hanging_up">Hanging up</string>
+    <string name="call_from">Call from</string>
 </resources>
