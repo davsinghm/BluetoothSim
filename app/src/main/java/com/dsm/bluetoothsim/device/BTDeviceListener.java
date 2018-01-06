@@ -29,5 +29,7 @@ public interface BTDeviceListener {
 
     void onSignalStrength(int signal);
 
+    void onSimStatus(int status);
+
     void cancelBtDiscovery();
 }

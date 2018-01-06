@@ -25,10 +25,6 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.content.Context;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.IBinder;
 import android.os.Vibrator;
 import android.support.annotation.NonNull;
@@ -66,7 +62,7 @@ public class BluetoothService extends Service implements BTDeviceListener {
     public static final String ACTION_CALL_ANSWER = packageName + ".service.ACTION_CALL_ANSWER";
     public static final String ACTION_CALL_HANG_UP = packageName + ".service.ACTION_CALL_HANG_UP";
 
-    //broadcasts
+    //local broadcasts from service
     public static final String ACTION_CALL_HANGED_UP = packageName + ".service.ACTION_CALL_HANGED_UP";
     public static final String ACTION_CALL_CONNECTED = packageName + ".service.ACTION_CALL_CONNECTED";
     public static final String ACTION_CALL_DISCONNECTED = packageName + ".service.ACTION_CALL_DISCONNECTED";
@@ -85,8 +81,8 @@ public class BluetoothService extends Service implements BTDeviceListener {
         notificationHelper.notifyConnected();
         Log.d(TAG, "ACTION_CONNECTED");
 
-        BTDevice.getInstance().queryBatteryInfo(); //TODO remove
-        BTDevice.getInstance().querySignal(); //TODO remove
+        BTDevice.getInstance().queryBatteryInfo();
+        BTDevice.getInstance().querySignal();
     }
 
     @Override
@@ -146,6 +142,11 @@ public class BluetoothService extends Service implements BTDeviceListener {
     }
 
     @Override
+    public void onSimStatus(int status) {
+        notificationHelper.notifySimStatus(status);
+    }
+
+    @Override
     public void onSignalStrength(int signal) {
         notificationHelper.notifySignal(signal);
     }
@@ -164,7 +165,7 @@ public class BluetoothService extends Service implements BTDeviceListener {
         startForeground(NotificationHelper.SERVICE_NOTIFICATION_ID, notificationHelper.getServiceNotification());
 
         if (!initializeBluetooth()) {
-            NotificationHelper.notifyLog("Error", "Unable to initialize BluetoothManager");
+            NotificationHelper.notifyLog("Error", "Unable to initialize Bluetooth");
         }
     }
 
@@ -214,13 +215,14 @@ public class BluetoothService extends Service implements BTDeviceListener {
             String phoneNumber = intent.getStringExtra("PHONE_NUMBER");
             Log.d(TAG, "Reply " + text + " to " + phoneNumber);
             //TODO
-        }else if (ACTION_SMS_MARK_READ.equals(action)) {
+        } else if (ACTION_SMS_MARK_READ.equals(action)) {
             //TODO
         } else if (ACTION_SERVICE_CONNECT.equals(action)) {
             startBtDevice();
         } else {
             startBtDevice();
         }
+
         return START_STICKY;
     }
 

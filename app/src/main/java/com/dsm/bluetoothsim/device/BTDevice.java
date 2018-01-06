@@ -108,7 +108,6 @@ public class BTDevice extends BLEDevice {
         super.onDeviceDisconnected(error);
         if (btDeviceListener != null)
             btDeviceListener.onDeviceDisconnected(error);
-        Log.w("TEST", "onDeviceDisconnected()");
     }
 
     @Override
@@ -209,7 +208,7 @@ public class BTDevice extends BLEDevice {
     }
 
     private void openMic() {
-        AudioManager audioManager = (AudioManager) Application.getAppContext().getSystemService(Context.AUDIO_SERVICE);
+        AudioManager audioManager = (AudioManager) Application.getAppContext().getSystemService(Context.AUDIO_SERVICE); //TODO move
         audioManager.setMicrophoneMute(false);
 
         shouldMicOpen = true;
@@ -299,11 +298,9 @@ public class BTDevice extends BLEDevice {
         NotificationHelper.notifyLog("Error", "Sim Pin result is not 1, = " + result);
     }
 
-    // status = 1 good
     @Override
     public void onSimStatus(int status) {
-        if (status != 1)
-            NotificationHelper.notifyLog("SIM Status", "Sim status is not 1, status = " + status);
+        btDeviceListener.onSimStatus(status);
     }
 
     @Override

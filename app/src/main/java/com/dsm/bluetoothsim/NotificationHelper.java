@@ -27,20 +27,19 @@ import com.dsm.bluetoothsim.util.Utils;
 
 public class NotificationHelper {
 
-    public static int SERVICE_NOTIFICATION_ID = (Application.class.getSimpleName() + "Service").hashCode();
-    private static int INCOMING_CALL_NOTI_ID = 4;
-    private static int ONGOING_CALL_NOTI_ID = 5;
-    private static int OUTGOING_CALL_NOTI_ID = 6;
     public static final String REMOTE_INPUT_KEY_SMS_REPLY = "SMS_REPLY";
+    public static int SERVICE_NOTIFICATION_ID = (Application.class.getSimpleName() + "Service").hashCode();
 
-    String CHANNEL_DEFAULT = "default";
-    String CHANNEL_SMS = "channel_sms";
-    String CHANNEL_INCOMING_CALLS = "channel_incoming_calls";
-    String CHANNEL_ONGOING_CALLS = "channel_ongoing_calls";
-    String CHANNEL_MISSED_CALLS = "channel_missed_calls";
-    String GROUP_ONGOING_CALL = "group_ongoing_call";
-    String GROUP_MISSED_CALLS = "group_missed_calls";
-    String GROUP_SMS = "group_sms";
+    private static int ONGOING_CALL_NOTIFICATION_ID = "OngoingCall".hashCode();
+
+    private static final String CHANNEL_DEFAULT = "default";
+    private static final String CHANNEL_SMS = "channel_sms";
+    private static final String CHANNEL_INCOMING_CALLS = "channel_incoming_calls";
+    private static final String CHANNEL_ONGOING_CALLS = "channel_ongoing_calls";
+    private static final String CHANNEL_MISSED_CALLS = "channel_missed_calls";
+    private static final String GROUP_ONGOING_CALL = "group_ongoing_call";
+    private static final String GROUP_MISSED_CALLS = "group_missed_calls";
+    private static final String GROUP_SMS = "group_sms";
 
     private Context context;
 
@@ -52,9 +51,10 @@ public class NotificationHelper {
     private NotificationManager notificationManager;
     private LetterTileProvider letterTileProvider;
 
+    private int simStatus;
     private int signalValue;
-    private boolean isCharging;
     private int batteryLevel;
+    private boolean isCharging;
     private String opNumber;
     private String opName;
     private int networkStatus;
@@ -111,7 +111,7 @@ public class NotificationHelper {
 
     public Notification getServiceNotification() {
         foregroundBuilder.setContentTitle("Service is running in the background");
-        foregroundBuilder.setSmallIcon(R.drawable.ic_bluetooth_disabled_white);
+        foregroundBuilder.setSmallIcon(R.drawable.ic_bluetooth_searching_white);
         addConnectActions();
 
         return foregroundBuilder.build();
@@ -119,7 +119,6 @@ public class NotificationHelper {
 
     public void updateService(@DrawableRes int smallIcon, @ColorInt int color, String title, boolean showWhen) {
         foregroundBuilder.setContentTitle(title);
-//        foregroundBuilder.setContentText(contentText);
         foregroundBuilder.setContentInfo(null);
         foregroundBuilder.setSmallIcon(smallIcon);
         foregroundBuilder.setColor(color);
@@ -132,7 +131,7 @@ public class NotificationHelper {
 
     public void notifyDisconnected(String text) {
         addConnectActions();
-        updateService(R.drawable.ic_bluetooth_disabled_white, colorRed, "Disconnected" + (text != null ? ": " + text : null), true);
+        updateService(R.drawable.ic_signal_cellular_off_black, colorRed, "Disconnected" + (text != null ? ": " + text : null), true);
     }
 
     public void notifyConnecting() {
@@ -168,8 +167,17 @@ public class NotificationHelper {
         String batteryInfo = "Battery " + batteryLevel + "%" + (isCharging ? " (+)" : "");
         String operator = networkStatus == /*TODO replace*/2 ? "Searching\u2026" : (opName != null ? opName : opNumber);
         String signal = signalValue == 0 ? "No signal" : "Signal " + signalValue;
-        String network = String.format("%s (Status %s) | %s", operator == null ? "No network" : operator, networkStatus, signal);
+        String sim = simStatus != 1 ? "No Sim (Status " + simStatus + ")" : "Sim Status 1";
+        String network = String.format("%s (Status %s) | %s | %s", operator == null ? "No network" : operator, networkStatus, signal, sim);
+
+        int icon = getSignalIcon(signalValue);
+        if (networkStatus != 1 && networkStatus != 4)
+            icon = R.drawable.ic_signal_cellular_null_black;
+        if (simStatus != 1)
+            icon = R.drawable.ic_signal_cellular_no_sim_black;
+
         foregroundBuilder.setContentTitle(network);
+        foregroundBuilder.setSmallIcon(icon);
         foregroundBuilder.setContentInfo(batteryInfo);
 
         notificationManager.notify(SERVICE_NOTIFICATION_ID, foregroundBuilder.build());
@@ -192,6 +200,11 @@ public class NotificationHelper {
         this.opNumber = opNumber;
         if (this.opName == null)
             this.opName = NetworkOperators.getName(opNumber);
+        updateServiceStatus();
+    }
+
+    public void notifySimStatus(int status) {
+        this.simStatus = status;
         updateServiceStatus();
     }
 
@@ -364,7 +377,7 @@ public class NotificationHelper {
         prepareCallNotification(builder, phoneNumber, true);
         addCallActions(builder, phoneNumber, false);
 
-        notificationManager.notify(ONGOING_CALL_NOTI_ID, builder.build());
+        notificationManager.notify(ONGOING_CALL_NOTIFICATION_ID, builder.build());
     }
 
     public void notifyOngoingCall(@Nullable String phoneNumber) {
@@ -375,7 +388,7 @@ public class NotificationHelper {
         prepareCallNotification(builder, phoneNumber, true);
         addCallActions(builder, phoneNumber, true);
 
-        notificationManager.notify(ONGOING_CALL_NOTI_ID, builder.build());
+        notificationManager.notify(ONGOING_CALL_NOTIFICATION_ID, builder.build());
     }
 
     public void notifyMissedCall(@Nullable String phoneNumber) {
@@ -398,7 +411,7 @@ public class NotificationHelper {
     }
 
     public void notifyCallDisconnected() {
-        notificationManager.cancel(ONGOING_CALL_NOTI_ID);
+        notificationManager.cancel(ONGOING_CALL_NOTIFICATION_ID);
     }
 
     public static void notifyLog(@Nullable String phoneNumber, @Nullable String content) {
@@ -465,7 +478,27 @@ public class NotificationHelper {
                 .setContentIntent(pendingIntent)
                 .addAction(R.drawable.ic_call_end_white, context.getString(R.string.hang_up), piHangup);
 
-        notificationManager.notify(ONGOING_CALL_NOTI_ID, builder.build());
+        notificationManager.notify(ONGOING_CALL_NOTIFICATION_ID, builder.build());
     }*/
+
+    @DrawableRes
+    private int getSignalIcon(int signalValue) {
+        switch (signalValue) {
+            case 0:
+                return R.drawable.ic_signal_cellular_0_bar_black;
+            case 1:
+                return R.drawable.ic_signal_cellular_1_bar_black;
+            case 2:
+                return R.drawable.ic_signal_cellular_2_bar_black;
+            case 3:
+                return R.drawable.ic_signal_cellular_3_bar_black;
+            case 4:
+                return R.drawable.ic_signal_cellular_4_bar_black;
+            case 5:
+                return R.drawable.ic_signal_cellular_5_bar_black;
+            default:
+                return R.drawable.ic_signal_cellular_null_black;
+        }
+    }
 
 }
