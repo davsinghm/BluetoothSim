@@ -1,7 +1,7 @@
 package com.dsm.bluetoothsim.device;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 /**
  * Created by dsm on 12/18/17.

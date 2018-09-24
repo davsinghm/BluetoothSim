@@ -2,12 +2,13 @@ package com.dsm.bluetoothsim.ui.widget;
 
 import android.app.Activity;
 import android.content.Context;
-import android.support.annotation.NonNull;
-import android.support.design.widget.BottomSheetBehavior;
 import android.view.View;
 import android.widget.EditText;
 
 import com.dsm.bluetoothsim.R;
+import com.google.android.material.bottomsheet.BottomSheetBehavior;
+
+import androidx.annotation.NonNull;
 
 /**
  * Created by dsm on 12/24/17.

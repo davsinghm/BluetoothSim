@@ -7,16 +7,16 @@ import android.media.AudioManager;
 import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.dsm.bluetoothsim.Application;
 import com.dsm.bluetoothsim.NotificationHelper;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class BTDevice extends BLEDevice {
 

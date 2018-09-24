@@ -80,7 +80,7 @@ class SocketThread extends Thread {
                 while ((n = inputStream.read(buffer)) > 0) {
                     byte[] bytes = new byte[n];
                     System.arraycopy(buffer, 0, bytes, 0, n);
-                    //BleDevice.printHexString("spp recv:", bytes);
+                    BleDevice.printHexString("spp recv:", bytes);
                     btDevice.notifyData(BleDevice.CHANNEL_ID_BCSP_MUX, bytes);
                 }
             }

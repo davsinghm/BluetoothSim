@@ -14,9 +14,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
-import android.support.annotation.Nullable;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.WindowManager.LayoutParams;
 import android.widget.ImageView;
@@ -31,6 +28,9 @@ import com.dsm.bluetoothsim.util.CallLogUtility;
 
 import net.frakbot.glowpadbackport.GlowPadView;
 
+import androidx.annotation.Nullable;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import jp.wasabeef.blurry.Blurry;
 
 public class PhoneActivity extends AppCompatActivity implements View.OnClickListener, SensorEventListener, GlowPadView.OnTriggerListener, DialPadLayout.OnInputListener {
@@ -255,7 +255,7 @@ public class PhoneActivity extends AppCompatActivity implements View.OnClickList
 
     @Override
     public void onTrigger(View v, int target) {
-        if (glowPadView.getResourceIdForTarget(target) == R.drawable.ic_lockscreen_answer) {
+        if (glowPadView.getResourceIdForTarget(target) == R.drawable.ic_glowpadview_answer) {
             if (!btDevice.answerRingingCall()) {
                 Toast.makeText(this, R.string.device_not_connected, Toast.LENGTH_SHORT).show();
                 glowPadView.reset(false);

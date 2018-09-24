@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/coordinator_layout"
     android:layout_width="match_parent"
@@ -12,7 +12,7 @@
         android:layout_height="match_parent"
         android:scaleType="centerCrop" />
 
-    <android.support.constraint.ConstraintLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorPrimaryBg">
@@ -189,11 +189,11 @@
             app:layout_constraintEnd_toEndOf="@+id/button_add_call"
             app:layout_constraintStart_toStartOf="@+id/button_add_call"
             app:layout_constraintTop_toBottomOf="@+id/button_add_call" />
-    </android.support.constraint.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
     <include layout="@layout/bottomsheet_dialpad" />
 
-    <android.support.design.widget.FloatingActionButton
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_end_call"
         android:layout_width="64dp"
         android:layout_height="64dp"
@@ -211,12 +211,12 @@
         android:layout_gravity="bottom|center_horizontal"
         app:feedbackCount="1"
         app:glowRadius="@dimen/glowpadview_glow_radius"
-        app:handleDrawable="@drawable/ic_in_call_touch_handle"
+        app:handleDrawable="@drawable/ic_glowpadview_touch_handle"
         app:innerRadius="@dimen/glowpadview_inner_radius"
         app:outerRadius="@dimen/glowpadview_target_placement_radius"
-        app:outerRingDrawable="@drawable/ic_lockscreen_outerring"
-        app:pointDrawable="@drawable/ic_lockscreen_glowdot"
+        app:outerRingDrawable="@drawable/ic_glowpadview_outerring"
+        app:pointDrawable="@drawable/ic_glowpadview_dot"
         app:snapMargin="@dimen/glowpadview_snap_margin"
-        app:targetDrawables="@array/incoming_call_widget_2way_targets"
+        app:targetDrawables="@array/glowpadview_incoming_call_widget_2way_targets"
         app:vibrationDuration="20" />
-</android.support.design.widget.CoordinatorLayout>
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

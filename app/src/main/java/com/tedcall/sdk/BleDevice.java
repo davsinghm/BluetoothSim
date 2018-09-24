@@ -46,6 +46,9 @@ public class BleDevice {
                 str = '0' + str;
             System.out.print(str.toUpperCase() + " ");
         }
+        System.out.print(", bytes: ");
+        for (byte b : bytes)
+            System.out.print(b + " ");
         System.out.println("");
     }
 

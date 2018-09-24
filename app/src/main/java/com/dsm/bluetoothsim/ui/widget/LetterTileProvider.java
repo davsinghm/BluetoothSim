@@ -8,10 +8,11 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.support.annotation.ColorInt;
 import android.text.TextPaint;
 
 import com.dsm.bluetoothsim.R;
+
+import androidx.annotation.ColorInt;
 
 public class LetterTileProvider {
 

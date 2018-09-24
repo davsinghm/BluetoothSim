@@ -11,9 +11,10 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.support.annotation.ColorInt;
 
 import com.dsm.bluetoothsim.R;
+
+import androidx.annotation.ColorInt;
 
 /**
  * Created by dsm on 12/27/17.

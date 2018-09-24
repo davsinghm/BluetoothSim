@@ -8,26 +8,18 @@ import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffXfermode;
-import android.graphics.Rect;
-import android.graphics.RectF;
-import android.hardware.display.DisplayManager;
 import android.net.Uri;
 import android.os.Build;
 import android.provider.CallLog;
 import android.provider.ContactsContract;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.view.Display;
 
 import com.dsm.bluetoothsim.R;
 
 import java.io.IOException;
 import java.io.InputStream;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 public class CallLogUtility {
 
@@ -40,8 +32,8 @@ public class CallLogUtility {
         values.put(CallLog.Calls.DURATION, duration);
         values.put(CallLog.Calls.TYPE, type);
         values.put(CallLog.Calls.NEW, 1);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-            values.put(CallLog.Calls.VIA_NUMBER, c.getText(R.string.app_name).toString());
+        /*if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
+            values.put(CallLog.Calls.VIA_NUMBER, c.getText(R.string.app_name).toString());*/
 
         if (resolver != null)
             resolver.insert(CallLog.Calls.CONTENT_URI, values);

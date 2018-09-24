@@ -27,16 +27,17 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 import android.os.Vibrator;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-import android.support.v4.app.RemoteInput;
-import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
 import com.dsm.bluetoothsim.device.BTDevice;
 import com.dsm.bluetoothsim.device.BTDeviceListener;
 import com.dsm.bluetoothsim.device.CallStats;
 import com.dsm.bluetoothsim.util.CallLogUtility;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+import androidx.core.app.RemoteInput;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class BluetoothService extends Service implements BTDeviceListener {
 
@@ -92,7 +93,10 @@ public class BluetoothService extends Service implements BTDeviceListener {
 
     @Override
     public void onNewSMS(@Nullable String phoneNumber, @Nullable String content) {
+
         notificationHelper.notifySMS(phoneNumber, content);
+
+        MessageDbHelper.getInstance().addInboxMessage(phoneNumber, content);
     }
 
     @Override

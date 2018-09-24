@@ -6,8 +6,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.dsm.bluetoothsim.Application;
@@ -17,6 +15,9 @@ import com.dsm.bluetoothsim.util.TextUtils;
 import com.tedcall.sdk.BleDevice;
 
 import java.util.UUID;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 
 /**

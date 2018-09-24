@@ -9,17 +9,18 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.os.Build;
-import android.support.annotation.ColorInt;
-import android.support.annotation.DrawableRes;
-import android.support.annotation.Nullable;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.RemoteInput;
 
 import com.dsm.bluetoothsim.ui.PhoneActivity;
 import com.dsm.bluetoothsim.ui.widget.LetterTileProvider;
 import com.dsm.bluetoothsim.util.CallLogUtility;
 import com.dsm.bluetoothsim.util.TextUtils;
 import com.dsm.bluetoothsim.util.Utils;
+
+import androidx.annotation.ColorInt;
+import androidx.annotation.DrawableRes;
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.RemoteInput;
 
 /**
  * Created by dsm on 11/30/17.
@@ -165,10 +166,9 @@ public class NotificationHelper {
     private void updateServiceStatus() {
         //assert it's connected
         String batteryInfo = "Battery " + batteryLevel + "%" + (isCharging ? " (+)" : "");
-        String operator = networkStatus == /*TODO replace*/2 ? "Searching\u2026" : (opName != null ? opName : opNumber);
-        String signal = signalValue == 0 ? "No signal" : "Signal " + signalValue;
-        String sim = simStatus != 1 ? "No Sim (Status " + simStatus + ")" : "Sim Status 1";
-        String network = String.format("%s (Status %s) | %s | %s", operator == null ? "No network" : operator, networkStatus, signal, sim);
+        String operator = opName != null ? opName : (opNumber != null ? opNumber : "No Network");
+        String sim = simStatus != 1 ? "No Sim (Sim Status " + simStatus + ") \u2022 " : "";
+        String network = String.format("%s \u2022 %s%s", operator, sim, batteryInfo);
 
         int icon = getSignalIcon(signalValue);
         if (networkStatus != 1 && networkStatus != 4)
@@ -178,7 +178,7 @@ public class NotificationHelper {
 
         foregroundBuilder.setContentTitle(network);
         foregroundBuilder.setSmallIcon(icon);
-        foregroundBuilder.setContentInfo(batteryInfo);
+        foregroundBuilder.setContentText(networkStatus == /*TODO replace*/ 2 ? "Searching\u2026" : null);
 
         notificationManager.notify(SERVICE_NOTIFICATION_ID, foregroundBuilder.build());
     }

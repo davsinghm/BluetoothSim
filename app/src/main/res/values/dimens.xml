@@ -16,13 +16,13 @@
     <dimen name="keyguard_lockscreen_outerring_diameter">270dp</dimen>
 
     <!-- Circle size for incoming call widget's each item. -->
-    <dimen name="incoming_call_widget_circle_size">94dp</dimen>
+    <dimen name="incoming_call_widget_circle_size">84dp</dimen>
 
     <!-- Margin used for incoming call widget's icon for each item.
          This should be same as "(incoming_call_widget_circle_size - icon_size)/2".
          Right now answer/decline/reject icons have 38dp width/height.
          So, (94 - 38)/2 ==> 28dp -->
-    <dimen name="incoming_call_widget_asset_margin">28dp</dimen>
+    <!--<dimen name="incoming_call_widget_asset_margin">28dp</dimen>-->
 
     <dimen name="tile_letter_font_size">24dp</dimen>
     <dimen name="letter_tile_size">40dp</dimen>

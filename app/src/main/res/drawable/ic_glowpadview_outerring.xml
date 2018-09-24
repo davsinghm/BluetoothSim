@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-<!-- Copyright (C) 2011 The Android Open Source Project
+<?xml version="1.0" encoding="utf-8"?><!-- Copyright (C) 2011 The Android Open Source Project
 
      Licensed under the Apache License, Version 2.0 (the "License");
      you may not use this file except in compliance with the License.
@@ -15,10 +14,12 @@
 -->
 
 <shape xmlns:android="http://schemas.android.com/apk/res/android"
-    android:shape="oval"
-    >
-    <size android:height="@dimen/keyguard_lockscreen_outerring_diameter"
-          android:width="@dimen/keyguard_lockscreen_outerring_diameter" />
+    android:shape="oval">
+    <size
+        android:width="@dimen/keyguard_lockscreen_outerring_diameter"
+        android:height="@dimen/keyguard_lockscreen_outerring_diameter" />
     <solid android:color="#00000000" />
-    <stroke android:color="#1affffff" android:width="2dp" />
+    <stroke
+        android:width="2dp"
+        android:color="@color/glowpad_outering" />
 </shape>

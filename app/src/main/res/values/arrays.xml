@@ -4,10 +4,10 @@
          - Answer (drag right)
          - Reject (drag left)
      -->
-    <array name="incoming_call_widget_2way_targets">
-        <item>@drawable/ic_lockscreen_answer</item>
+    <array name="glowpadview_incoming_call_widget_2way_targets">
+        <item>@drawable/ic_glowpadview_answer</item>
         <item>@null</item>
-        <item>@drawable/ic_lockscreen_decline</item>
+        <item>@drawable/ic_glowpadview_decline</item>
         <item>@null</item>
     </array>
 

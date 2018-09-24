@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#2196F3</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#FFFFFFFF</color>
+    <color name="colorPrimaryDark">#FFFFFFFF</color>
+    <color name="colorPrimaryLight">#FFFFFFFF</color>
+    <color name="colorAccent">#2376E4</color>
 
     <color name="colorPrimaryBg">#4D000000</color>
     <color name="divider">#1F000000</color>
@@ -29,5 +30,11 @@
     <color name="material_500_brown">#795548</color>
     <color name="material_500_grey">#9E9E9E</color>
     <color name="material_500_blue_grey">#607D8B</color>
+    <color name="app_bar_bg">#FFFFFFFF</color>
+
+    <color name="glowpad_outering">#1AFFFFFF</color>
+    <color name="glowpad_button_activated">#FFFFFFFF</color>
+    <color name="glowpad_decline_normal">@color/material_500_red</color>
+    <color name="glowpad_answer_normal">@color/material_500_light_green</color>
 
 </resources>
